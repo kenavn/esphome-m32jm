@@ -5,12 +5,25 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  schedule:
+    # Weekly run so upstream ESPHome / IDF changes don't go undetected.
+    # Offset minute to dodge GitHub's :00 cron rate-limit.
+    - cron: "23 6 * * 1"
   workflow_dispatch:
 
 jobs:
   esphome-compile:
-    name: ESPHome compile
+    name: Compile (esphome ${{ matrix.esphome }})
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - esphome: stable
+            install: pip install -r requirements.txt
+          - esphome: dev
+            install: pip install -U git+https://github.com/esphome/esphome.git@dev
+
     steps:
       - uses: actions/checkout@v4
 
@@ -19,8 +32,8 @@ jobs:
           python-version: "3.12"
           cache: pip
 
-      - name: Install ESPHome
-        run: pip install -r requirements.txt
+      - name: Install ESPHome (${{ matrix.esphome }})
+        run: ${{ matrix.install }}
 
       - name: Compile example.yaml
         run: esphome compile example.yaml

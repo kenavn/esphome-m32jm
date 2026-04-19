@@ -20,7 +20,7 @@ jobs:
           cache: pip
 
       - name: Install ESPHome
-        run: pip install esphome
+        run: pip install -r requirements.txt
 
       - name: Compile example.yaml
         run: esphome compile example.yaml

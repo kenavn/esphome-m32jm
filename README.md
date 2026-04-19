@@ -1,5 +1,7 @@
 # ESPHome M32JM pressure sensor
 
+[![CI](https://github.com/kenavn/esphome-m32jm/actions/workflows/ci.yaml/badge.svg)](https://github.com/kenavn/esphome-m32jm/actions/workflows/ci.yaml)
+
 ESPHome external component for the **TE Connectivity / MEAS M3200-family**
 amplified piezoresistive pressure sensors with the **I²C digital output**
 option (`M32JMx-xxxxxx-xxxPG/A/D` and similar variants).

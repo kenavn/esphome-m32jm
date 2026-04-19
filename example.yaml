@@ -5,7 +5,9 @@
 #   Black  → GND
 #   Green  → SDA (GPIO21)
 #   White  → SCL (GPIO22)
-#   Plus 4.7 kΩ pull-ups on SDA and SCL to 3V3.
+#   Plus 4.7 kΩ pull-ups on SDA and SCL to 3V3 (strongly recommended;
+#   the ESP32's internal pull-ups are usable for short benchtop wiring
+#   at 100 kHz but go out of I²C spec on longer cables / 400 kHz).
 
 esphome:
   name: m32jm-test

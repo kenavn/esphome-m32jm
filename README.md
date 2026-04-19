@@ -52,8 +52,17 @@ levels native to the ESP32 (no level shifter needed). Powering at 5 V
 requires a bidirectional level shifter on SDA and SCL — the ESP32 GPIOs
 are not 5 V-tolerant.
 
-**External 4.7 kΩ pull-ups on SDA and SCL to 3V3 are required** — the
-M3200 cable variant has none built in.
+**External 4.7 kΩ pull-ups on SDA and SCL to 3V3 are strongly recommended.**
+The M3200 cable variant has none built in. The bus *will* run on the
+ESP32's internal pull-ups (~45 kΩ, enabled automatically by ESPHome's I²C
+driver) — short cables and a single device at 100 kHz can get away with
+this — but the rising-edge time constant (RC ≈ 45 kΩ × bus capacitance)
+exceeds the I²C standard-mode spec of 1 µs as soon as the bus has any
+real length or capacitance. Symptoms when you push the limit: occasional
+NACKs, garbled bytes, or `Data fetch failed` warnings, especially at
+400 kHz, on cables over ~30 cm, or with multiple I²C devices on the same
+bus. With proper 4.7 kΩ external pull-ups, RC drops to ~0.2 µs and the
+bus is reliable up to fast-mode (400 kHz) on long cables.
 
 ## Installation
 
@@ -124,8 +133,8 @@ and 90 % of the 14-bit range, see datasheet §2.1). They're *not* `0` and
 
 | Symptom | Likely cause |
 | --- | --- |
-| `Measurement request failed` on every cycle | Wiring (SDA/SCL swapped, missing pull-ups, wrong address). Enable `scan: true` on the i2c block to see what addresses respond. |
-| `Data fetch failed` after MR succeeds | Same wiring/pull-up issue, intermittent. Try lower I²C frequency (`50kHz`). |
+| `Measurement request failed` on every cycle | Wiring (SDA/SCL swapped, wrong address, no pull-up at all). Enable `scan: true` on the i2c block to see what addresses respond. |
+| Intermittent `Data fetch failed` or garbled readings | Pull-up too weak for the bus. ESP32 internal pull-ups (~45 kΩ) are out of spec on long cables or at 400 kHz — add external 4.7 kΩ pull-ups, or drop the I²C frequency to `50kHz`. |
 | `Sensor fault status` (status `11`) | Sensor reports an internal fault — check supply voltage (must be ≥ 2.7 V) and that the sensor isn't physically over-pressured. |
 | Stale data warnings (status `10`) | MR-to-DF wait was too short. The driver uses 11 ms by default; if you've forked it and reduced this, raise it back. |
 | Pressure offset of a few % at zero | Normal — factory accuracy is ±1.5 % FS for gauge variants. |
